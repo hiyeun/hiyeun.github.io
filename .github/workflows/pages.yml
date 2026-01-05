@@ -36,7 +36,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libxml2-dev libxslt-dev zlib1g-dev pkg-config
-          
+
       - name: Install gems
         env:
           NOKOGIRI_USE_SYSTEM_LIBRARIES: true
@@ -44,6 +44,16 @@ jobs:
           bundle config set force_ruby_platform true
           bundle install --jobs 4 --retry 3
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Jupyter
+        run: |
+          python -m pip install --upgrade pip
+          pip install jupyter nbconvert
+          
       - name: Build with Jekyll
         run: bundle exec jekyll build --trace
 
