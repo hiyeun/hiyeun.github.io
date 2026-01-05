@@ -14,6 +14,8 @@ This project focuses on **Non-Line-of-Sight (NLoS) perception** for safety-criti
 
 The goal is to enable robust perception of objects and environments that are **occluded, indirectly observable, or partially observable**, using principled multimodal fusion and physics-aware reasoning.
 
+Project page: <a href="/projects/nlos/">https://hiyeun.github.io/projects/nlos/</a>
+
 ## Key Topics
 
 - NLoS object detection and localization  
