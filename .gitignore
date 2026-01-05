@@ -12,3 +12,7 @@ node_modules/
 vendor
 .idea
 .venv
+
+# allow bundler config for GitHub Actions
+!.bundle/
+!.bundle/config
