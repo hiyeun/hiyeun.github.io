@@ -2,7 +2,7 @@
 layout: about
 title: about
 permalink: /
-subtitle: Multimodal Perception for Safety-Critical Autonomous Systems
+subtitle: Hiyeun
 
 profile:
   align: right
@@ -10,7 +10,7 @@ profile:
   image_circular: false
   more_info: >
     <p>Seoul National University</p>
-    <p>Electrical Engineering</p>
+    <p>Dept. of Electrical and Computer Engineering</p>
     <p>Seoul, Republic of Korea</p>
 
 selected_papers: true
@@ -32,8 +32,6 @@ My current interests include:
 - NLoS Perception  
 - Autonomous Systems  
 - Robotics  
-- Reliability-aware Perception  
-
-I aim to develop perception systems that are not only accurate under nominal conditions, but also **interpretable, resilient, and trustworthy** in real-world deployment.
+- Robot Intelligence
 
 You can find my research outputs and updates through the links below.
