@@ -32,6 +32,11 @@ jobs:
       - name: Add ruby platform to lockfile
         run: bundle lock --add-platform ruby
 
+      - name: Install system deps for nokogiri
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxml2-dev libxslt-dev zlib1g-dev pkg-config
+          
       - name: Install gems
         env:
           NOKOGIRI_USE_SYSTEM_LIBRARIES: true
