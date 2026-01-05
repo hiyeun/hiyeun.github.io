@@ -2,7 +2,7 @@
 layout: project
 title: Non-Line-of-Sight (NLoS) Perception
 description: Robust multimodal perception beyond line-of-sight constraints.
-img: assets/img/projects/nlos_preview.png
+img: assets/img/projects/nlos.png
 importance: 1
 category: research
 ---
