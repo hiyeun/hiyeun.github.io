@@ -26,7 +26,12 @@ jobs:
         with:
           ruby-version: "3.2"
           bundler-cache: true
-
+      - name: Install gems
+        env:
+          NOKOGIRI_USE_SYSTEM_LIBRARIES: true
+        run: |
+          gem install bundler
+          bundle install --jobs 4 --retry 3
       - name: Build with Jekyll
         run: bundle exec jekyll build --trace
 
