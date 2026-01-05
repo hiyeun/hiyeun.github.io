@@ -25,7 +25,7 @@ latest_posts:
 
 I am a graduate researcher at **Seoul National University**, working on **multimodal perception for safety-critical autonomous systems**.
 
-My research focuses on enabling robust and fail-operational perception under challenging conditions, including **non-line-of-sight (NLoS) scenarios**, sensor degradation, and complex real-world environments. I am particularly interested in how heterogeneous sensing and principled fusion strategies can extend perceptual capabilities beyond the limits of single-modality systems.
+My research focuses on multimodal fusion perception system, including **non-line-of-sight (NLoS) scenarios** in complex real-world environments. 
 
 My current interests include:
 - Multimodal Sensor Fusion  
