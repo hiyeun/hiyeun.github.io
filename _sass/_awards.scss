@@ -1,0 +1,37 @@
+.awards-list {
+  margin-top: 0.25rem;
+
+  .award-item {
+    display: grid;
+    grid-template-columns: 4.25rem 1fr;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--global-divider-color);
+  }
+
+  .award-year {
+    font-weight: 600;
+    color: var(--global-text-color-light);
+  }
+
+  .award-title {
+    font-weight: 600;
+  }
+
+  .award-event,
+  .award-issuer {
+    font-size: 0.95rem;
+    line-height: 1.45;
+  }
+
+  .award-issuer {
+    color: var(--global-text-color-light);
+  }
+
+  @media (max-width: 576px) {
+    .award-item {
+      grid-template-columns: 1fr;
+      gap: 0.2rem;
+    }
+  }
+}
