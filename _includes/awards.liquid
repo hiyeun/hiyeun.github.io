@@ -1,0 +1,12 @@
+<div class="awards-list">
+  {% for award in site.data.awards %}
+    <div class="award-item">
+      <div class="award-year">{{ award.year }}</div>
+      <div class="award-content">
+        <a class="award-title" href="{{ award.proof_url | relative_url }}">{{ award.title }}</a>
+        <div class="award-event">{{ award.event }}</div>
+        <div class="award-issuer">{{ award.issuer }}</div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
