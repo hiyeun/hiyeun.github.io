@@ -1,12 +1,115 @@
-<div class="awards-list">
-  {% for award in site.data.awards %}
-    <div class="award-item">
-      <div class="award-year">{{ award.year }}</div>
-      <div class="award-content">
-        <a class="award-title" href="{{ award.proof_url | relative_url }}">{{ award.title }}</a>
-        <div class="award-event">{{ award.event }}</div>
-        <div class="award-issuer">{{ award.issuer }}</div>
+<div class="awards-gallery">
+  <div class="row row-cols-1 row-cols-md-3">
+    {% for award in site.data.awards %}
+      <div class="col mb-4">
+        <button
+          type="button"
+          class="award-card-button"
+          data-proof-url="{{ award.proof_url | relative_url }}"
+          data-award-title="{{ award.title | escape }}"
+          data-award-event="{{ award.event | escape }}"
+          aria-label="View certificate for {{ award.title | escape }}"
+        >
+          <div class="card h-100 hoverable award-card">
+            <div class="award-image-wrap">
+              <div class="award-image-placeholder" aria-hidden="true">
+                <i class="fa-solid fa-award"></i>
+              </div>
+              <img class="card-img-top award-thumb" alt="{{ award.title | escape }} certificate" loading="lazy">
+            </div>
+            <div class="card-body">
+              <div class="award-year">{{ award.year }}</div>
+              <h2 class="card-title">{{ award.title }}</h2>
+              <p class="card-text award-event">{{ award.event }}</p>
+              <p class="award-issuer">{{ award.issuer }}</p>
+            </div>
+          </div>
+        </button>
       </div>
-    </div>
-  {% endfor %}
+    {% endfor %}
+  </div>
 </div>
+
+<div id="award-modal" class="award-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="award-modal-title">
+  <button type="button" class="award-modal-close" aria-label="Close certificate viewer">&times;</button>
+  <div class="award-modal-content">
+    <img id="award-modal-image" alt="Award certificate">
+    <div class="award-modal-caption">
+      <strong id="award-modal-title"></strong>
+      <span id="award-modal-event"></span>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const cards = document.querySelectorAll('.award-card-button');
+    const modal = document.getElementById('award-modal');
+    const modalImage = document.getElementById('award-modal-image');
+    const modalTitle = document.getElementById('award-modal-title');
+    const modalEvent = document.getElementById('award-modal-event');
+    const closeButton = modal.querySelector('.award-modal-close');
+
+    function extractCertificateImage(html) {
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      const image = doc.querySelector('img[src^="data:image"]');
+      return image ? image.getAttribute('src') : null;
+    }
+
+    async function loadCertificate(card) {
+      const thumb = card.querySelector('.award-thumb');
+      if (thumb.getAttribute('src')) return thumb.getAttribute('src');
+
+      try {
+        const response = await fetch(card.dataset.proofUrl, { cache: 'force-cache' });
+        if (!response.ok) throw new Error('Certificate page could not be loaded.');
+        const html = await response.text();
+        const imageSrc = extractCertificateImage(html);
+        if (!imageSrc) throw new Error('Certificate image was not found.');
+
+        thumb.src = imageSrc;
+        thumb.classList.add('is-loaded');
+        const placeholder = card.querySelector('.award-image-placeholder');
+        if (placeholder) placeholder.classList.add('is-hidden');
+        return imageSrc;
+      } catch (error) {
+        console.warn('Unable to load award certificate preview:', error);
+        return null;
+      }
+    }
+
+    function openModal(card, imageSrc) {
+      if (!imageSrc) return;
+      modalImage.src = imageSrc;
+      modalTitle.textContent = card.dataset.awardTitle || '';
+      modalEvent.textContent = card.dataset.awardEvent || '';
+      modal.classList.add('is-open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('award-modal-open');
+      closeButton.focus();
+    }
+
+    function closeModal() {
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+      modalImage.removeAttribute('src');
+      document.body.classList.remove('award-modal-open');
+    }
+
+    cards.forEach(function (card) {
+      loadCertificate(card);
+      card.addEventListener('click', async function () {
+        const imageSrc = await loadCertificate(card);
+        openModal(card, imageSrc);
+      });
+    });
+
+    closeButton.addEventListener('click', closeModal);
+    modal.addEventListener('click', function (event) {
+      if (event.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+    });
+  });
+</script>
