@@ -5,7 +5,6 @@
         <button
           type="button"
           class="award-card-button"
-          data-proof-url="{{ award.proof_url | relative_url }}"
           data-award-title="{{ award.title | escape }}"
           data-award-event="{{ award.event | escape }}"
           aria-label="View certificate for {{ award.title | escape }}"
@@ -15,7 +14,14 @@
               <div class="award-image-placeholder" aria-hidden="true">
                 <i class="fa-solid fa-award"></i>
               </div>
-              <img class="card-img-top award-thumb" alt="{{ award.title | escape }} certificate" loading="lazy">
+              <iframe
+                class="award-source-frame"
+                src="{{ award.proof_url | relative_url }}"
+                title="{{ award.title | escape }} certificate"
+                loading="eager"
+                tabindex="-1"
+                aria-hidden="true"
+              ></iframe>
             </div>
             <div class="card-body">
               <div class="award-year">{{ award.year }}</div>
@@ -50,79 +56,55 @@
     const modalEvent = document.getElementById('award-modal-event');
     const closeButton = modal.querySelector('.award-modal-close');
 
-    function extractCertificateImage(html) {
-      const doc = new DOMParser().parseFromString(html, 'text/html');
-      const image = doc.querySelector('img[src^="data:image"]');
-      if (image && image.getAttribute('src')) return image.getAttribute('src');
-
-      const match = html.match(/<img[^>]+src=["'](data:image\/[^"']+)["']/i);
-      return match ? match[1] : null;
-    }
-
-    function loadCertificateWithIframe(url) {
-      return new Promise(function (resolve) {
-        const iframe = document.createElement('iframe');
-        iframe.src = url;
-        iframe.className = 'award-source-frame';
-        iframe.setAttribute('aria-hidden', 'true');
-        iframe.tabIndex = -1;
-
-        const finish = function (value) {
-          iframe.remove();
-          resolve(value || null);
-        };
-
-        iframe.onload = function () {
-          try {
-            const image = iframe.contentDocument && iframe.contentDocument.querySelector('img[src^="data:image"]');
-            finish(image ? image.getAttribute('src') : null);
-          } catch (error) {
-            finish(null);
-          }
-        };
-
-        iframe.onerror = function () {
-          finish(null);
-        };
-
-        document.body.appendChild(iframe);
-      });
-    }
-
-    async function loadCertificate(card) {
-      const thumb = card.querySelector('.award-thumb');
-      if (thumb.getAttribute('src')) return thumb.getAttribute('src');
-
-      let imageSrc = null;
+    function prepareCertificateFrame(card) {
+      const frame = card.querySelector('.award-source-frame');
+      const placeholder = card.querySelector('.award-image-placeholder');
 
       try {
-        const response = await fetch(card.dataset.proofUrl, { cache: 'no-store' });
-        if (response.ok) {
-          const html = await response.text();
-          imageSrc = extractCertificateImage(html);
-        }
+        const doc = frame.contentDocument || frame.contentWindow.document;
+        const sourceImage = doc.querySelector('img');
+        if (!sourceImage || !sourceImage.getAttribute('src')) return null;
+
+        const imageSrc = sourceImage.getAttribute('src');
+        card.dataset.imageSrc = imageSrc;
+
+        doc.documentElement.style.width = '100%';
+        doc.documentElement.style.height = '100%';
+        doc.documentElement.style.overflow = 'hidden';
+        doc.body.innerHTML = '';
+        doc.body.style.margin = '0';
+        doc.body.style.width = '100%';
+        doc.body.style.height = '100%';
+        doc.body.style.overflow = 'hidden';
+        doc.body.style.background = '#ffffff';
+
+        const image = doc.createElement('img');
+        image.src = imageSrc;
+        image.alt = card.dataset.awardTitle + ' certificate';
+        image.style.display = 'block';
+        image.style.width = '100%';
+        image.style.height = '100%';
+        image.style.objectFit = 'contain';
+        image.style.objectPosition = 'center';
+        image.style.filter = 'none';
+        image.style.webkitFilter = 'none';
+        image.style.opacity = '1';
+        image.style.mixBlendMode = 'normal';
+        doc.body.appendChild(image);
+
+        frame.classList.add('is-loaded');
+        if (placeholder) placeholder.classList.add('is-hidden');
+        return imageSrc;
       } catch (error) {
-        console.warn('Unable to fetch award certificate preview:', error);
-      }
-
-      if (!imageSrc) {
-        imageSrc = await loadCertificateWithIframe(card.dataset.proofUrl);
-      }
-
-      if (!imageSrc) {
-        console.warn('Certificate image was not found:', card.dataset.proofUrl);
+        console.warn('Unable to prepare award certificate:', error);
         return null;
       }
-
-      thumb.src = imageSrc;
-      thumb.classList.add('is-loaded');
-      const placeholder = card.querySelector('.award-image-placeholder');
-      if (placeholder) placeholder.classList.add('is-hidden');
-      return imageSrc;
     }
 
-    function openModal(card, imageSrc) {
+    function openModal(card) {
+      const imageSrc = card.dataset.imageSrc || prepareCertificateFrame(card);
       if (!imageSrc) return;
+
       modalImage.src = imageSrc;
       modalTitle.textContent = card.dataset.awardTitle || '';
       modalEvent.textContent = card.dataset.awardEvent || '';
@@ -140,10 +122,13 @@
     }
 
     cards.forEach(function (card) {
-      loadCertificate(card);
-      card.addEventListener('click', async function () {
-        const imageSrc = await loadCertificate(card);
-        openModal(card, imageSrc);
+      const frame = card.querySelector('.award-source-frame');
+      frame.addEventListener('load', function () {
+        prepareCertificateFrame(card);
+      });
+
+      card.addEventListener('click', function () {
+        openModal(card);
       });
     });
 
