@@ -66,8 +66,10 @@ layout: default
 
     <!-- Awards -->
     {% if site.data.awards %}
-      <h2>awards</h2>
-      {% include awards.liquid %}
+      <h2>
+        <a href="{{ '/awards/' | relative_url }}" style="color: inherit">awards</a>
+      </h2>
+      {% include awards_summary.liquid %}
     {% endif %}
 
     <!-- Social -->
