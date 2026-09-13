@@ -38,6 +38,9 @@
     object-fit: cover;
     object-position: center top;
     opacity: 0;
+    filter: none !important;
+    -webkit-filter: none !important;
+    mix-blend-mode: normal !important;
     transition: opacity 0.2s ease;
   }
 
@@ -86,6 +89,16 @@
   }
 }
 
+.award-source-frame {
+  position: fixed;
+  width: 1px;
+  height: 1px;
+  left: -9999px;
+  top: -9999px;
+  visibility: hidden;
+  pointer-events: none;
+}
+
 body.award-modal-open {
   overflow: hidden;
 }
@@ -118,6 +131,9 @@ body.award-modal-open {
   max-height: 82vh;
   object-fit: contain;
   background: #fff;
+  filter: none !important;
+  -webkit-filter: none !important;
+  mix-blend-mode: normal !important;
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
 }
 
@@ -131,6 +147,7 @@ body.award-modal-open {
 .award-modal-caption strong,
 .award-modal-caption span {
   display: block;
+  color: #fff;
 }
 
 .award-modal-caption span {
