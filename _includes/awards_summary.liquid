@@ -1,0 +1,10 @@
+<div class="awards-summary">
+  {% for award in site.data.awards %}
+    <div class="award-summary-item">
+      <span class="award-summary-year">{{ award.year }}</span>
+      <span class="award-summary-text">
+        <strong>{{ award.title }}</strong>{% if award.event %} — {{ award.event }}{% endif %}
+      </span>
+    </div>
+  {% endfor %}
+</div>
