@@ -53,29 +53,72 @@
     function extractCertificateImage(html) {
       const doc = new DOMParser().parseFromString(html, 'text/html');
       const image = doc.querySelector('img[src^="data:image"]');
-      return image ? image.getAttribute('src') : null;
+      if (image && image.getAttribute('src')) return image.getAttribute('src');
+
+      const match = html.match(/<img[^>]+src=["'](data:image\/[^"']+)["']/i);
+      return match ? match[1] : null;
+    }
+
+    function loadCertificateWithIframe(url) {
+      return new Promise(function (resolve) {
+        const iframe = document.createElement('iframe');
+        iframe.src = url;
+        iframe.className = 'award-source-frame';
+        iframe.setAttribute('aria-hidden', 'true');
+        iframe.tabIndex = -1;
+
+        const finish = function (value) {
+          iframe.remove();
+          resolve(value || null);
+        };
+
+        iframe.onload = function () {
+          try {
+            const image = iframe.contentDocument && iframe.contentDocument.querySelector('img[src^="data:image"]');
+            finish(image ? image.getAttribute('src') : null);
+          } catch (error) {
+            finish(null);
+          }
+        };
+
+        iframe.onerror = function () {
+          finish(null);
+        };
+
+        document.body.appendChild(iframe);
+      });
     }
 
     async function loadCertificate(card) {
       const thumb = card.querySelector('.award-thumb');
       if (thumb.getAttribute('src')) return thumb.getAttribute('src');
 
-      try {
-        const response = await fetch(card.dataset.proofUrl, { cache: 'force-cache' });
-        if (!response.ok) throw new Error('Certificate page could not be loaded.');
-        const html = await response.text();
-        const imageSrc = extractCertificateImage(html);
-        if (!imageSrc) throw new Error('Certificate image was not found.');
+      let imageSrc = null;
 
-        thumb.src = imageSrc;
-        thumb.classList.add('is-loaded');
-        const placeholder = card.querySelector('.award-image-placeholder');
-        if (placeholder) placeholder.classList.add('is-hidden');
-        return imageSrc;
+      try {
+        const response = await fetch(card.dataset.proofUrl, { cache: 'no-store' });
+        if (response.ok) {
+          const html = await response.text();
+          imageSrc = extractCertificateImage(html);
+        }
       } catch (error) {
-        console.warn('Unable to load award certificate preview:', error);
+        console.warn('Unable to fetch award certificate preview:', error);
+      }
+
+      if (!imageSrc) {
+        imageSrc = await loadCertificateWithIframe(card.dataset.proofUrl);
+      }
+
+      if (!imageSrc) {
+        console.warn('Certificate image was not found:', card.dataset.proofUrl);
         return null;
       }
+
+      thumb.src = imageSrc;
+      thumb.classList.add('is-loaded');
+      const placeholder = card.querySelector('.award-image-placeholder');
+      if (placeholder) placeholder.classList.add('is-hidden');
+      return imageSrc;
     }
 
     function openModal(card, imageSrc) {
