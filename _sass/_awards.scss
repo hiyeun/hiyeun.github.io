@@ -24,27 +24,28 @@
   .award-image-wrap {
     position: relative;
     width: 100%;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 3 / 4;
     overflow: hidden;
-    background: var(--global-card-bg-color);
+    background: #fff;
     border-bottom: 1px solid var(--global-divider-color);
   }
 
-  .award-thumb {
+  .award-source-frame {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    object-position: center top;
+    border: 0;
+    background: #fff;
     opacity: 0;
+    pointer-events: none;
     filter: none !important;
     -webkit-filter: none !important;
     mix-blend-mode: normal !important;
     transition: opacity 0.2s ease;
   }
 
-  .award-thumb.is-loaded {
+  .award-source-frame.is-loaded {
     opacity: 1;
   }
 
@@ -89,16 +90,6 @@
   }
 }
 
-.award-source-frame {
-  position: fixed;
-  width: 1px;
-  height: 1px;
-  left: -9999px;
-  top: -9999px;
-  visibility: hidden;
-  pointer-events: none;
-}
-
 body.award-modal-open {
   overflow: hidden;
 }
@@ -130,7 +121,9 @@ body.award-modal-open {
   max-width: 100%;
   max-height: 82vh;
   object-fit: contain;
+  object-position: center;
   background: #fff;
+  opacity: 1 !important;
   filter: none !important;
   -webkit-filter: none !important;
   mix-blend-mode: normal !important;
